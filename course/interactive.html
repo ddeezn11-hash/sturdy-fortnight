@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js Interactive Course - Learn by Doing</title>
+  <title>Graphics Mastery - 2D & 3D Interactive Course</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <style>
@@ -56,7 +56,38 @@
     .lesson-subtitle {
       color: #94a3b8;
       font-size: 0.9rem;
-      margin-bottom: 25px;
+      margin-bottom: 15px;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(148, 163, 184, 0.1);
+      color: #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .mode-btn:hover {
+      background: rgba(148, 163, 184, 0.2);
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      color: white;
+      border-color: #60a5fa;
     }
 
     .lesson-content {
@@ -262,6 +293,14 @@
       flex: 1;
       border: none;
       background: #0f172a;
+      display: none;
+    }
+
+    #canvas2d {
+      flex: 1;
+      border: none;
+      background: white;
+      display: block;
     }
 
     .html-modal {
@@ -328,9 +367,8 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      margin: 25px 0;
+      margin: 15px 0;
       padding: 15px 0;
-      border-top: 1px solid rgba(148, 163, 184, 0.2);
       border-bottom: 1px solid rgba(148, 163, 184, 0.2);
     }
 
@@ -428,8 +466,13 @@
   <div class="container">
     <!-- Left Panel: Lessons -->
     <div class="panel lessons-panel">
-      <h1>Three.js Mastery</h1>
-      <div class="lesson-subtitle">Learn by writing code</div>
+      <h1>Graphics Mastery</h1>
+      <div class="lesson-subtitle">2D & 3D by coding</div>
+
+      <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('3d')">🎮 3D</button>
+        <button class="mode-btn" onclick="setMode('2d')">🎨 2D</button>
+      </div>
 
       <div class="chapter-selector" id="chapterSelector"></div>
 
@@ -454,6 +497,7 @@
         <span class="preview-status" id="previewStatus">Ready</span>
       </div>
       <iframe id="preview"></iframe>
+      <canvas id="canvas2d"></canvas>
     </div>
   </div>
 
@@ -468,40 +512,43 @@
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script>
+    let currentMode = '3d';
+
     // Lesson data
-    const lessons = [
-      {
-        chapter: 1,
-        title: "Your First Three.js Scene",
-        lessons: [
-          {
-            id: "1-1",
-            title: "Understanding Variables",
-            content: `
-              <h2>What are Variables?</h2>
-              <p>A variable is a container that stores a value. Think of it like a box where you can put something and label it.</p>
-              
-              <h3>Creating Variables</h3>
-              <p>In JavaScript, you create variables using <code>const</code>, <code>let</code>, or <code>var</code>:</p>
-              <ul>
-                <li><code>const</code> - constant value (doesn't change)</li>
-                <li><code>let</code> - can be changed</li>
-                <li><code>var</code> - old style (avoid)</li>
-              </ul>
+    const lessons = {
+      '3d': [
+        {
+          chapter: 1,
+          title: "Your First Three.js Scene",
+          lessons: [
+            {
+              id: "1-1",
+              title: "Understanding Variables",
+              content: `
+                <h2>What are Variables?</h2>
+                <p>A variable is a container that stores a value. Think of it like a box where you can put something and label it.</p>
+                
+                <h3>Creating Variables</h3>
+                <p>In JavaScript, you create variables using <code>const</code>, <code>let</code>, or <code>var</code>:</p>
+                <ul>
+                  <li><code>const</code> - constant value (doesn't change)</li>
+                  <li><code>let</code> - can be changed</li>
+                  <li><code>var</code> - old style (avoid)</li>
+                </ul>
 
-              <div class="info-box">
-                <strong>Pro Tip:</strong> Use <code>const</code> by default. Only use <code>let</code> if the value needs to change.
-              </div>
+                <div class="info-box">
+                  <strong>Pro Tip:</strong> Use <code>const</code> by default. Only use <code>let</code> if the value needs to change.
+                </div>
 
-              <h3>Example Code</h3>
-              <p>The code editor shows:</p>
-              <ul>
-                <li><code>const renderer = new THREE.WebGLRenderer()</code> - creates a renderer (stores in a box)</li>
-                <li><code>const scene = new THREE.Scene()</code> - creates a scene</li>
-                <li><code>const camera = new THREE.PerspectiveCamera(...)</code> - creates a camera</li>
-              </ul>
-            `,
-            code: `// Create a WebGL renderer - this draws 3D graphics
+                <h3>Example Code</h3>
+                <p>The code editor shows:</p>
+                <ul>
+                  <li><code>const renderer = new THREE.WebGLRenderer()</code> - creates a renderer (stores in a box)</li>
+                  <li><code>const scene = new THREE.Scene()</code> - creates a scene</li>
+                  <li><code>const camera = new THREE.PerspectiveCamera(...)</code> - creates a camera</li>
+                </ul>
+              `,
+              code: `// Create a WebGL renderer - this draws 3D graphics
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -527,33 +574,33 @@ scene.add(cube);
 
 // Render the scene
 renderer.render(scene, camera);`
-          },
-          {
-            id: "1-2",
-            title: "Understanding Functions",
-            content: `
-              <h2>What are Functions?</h2>
-              <p>A function is a reusable block of code. Instead of writing the same code over and over, you write it once in a function.</p>
+            },
+            {
+              id: "1-2",
+              title: "Understanding Functions",
+              content: `
+                <h2>What are Functions?</h2>
+                <p>A function is a reusable block of code. Instead of writing the same code over and over, you write it once in a function.</p>
 
-              <h3>Creating Functions</h3>
-              <p>Use the <code>function</code> keyword:</p>
-              <ul>
-                <li><code>function myFunction() { }</code> - creates a function</li>
-                <li>Call it with <code>myFunction()</code></li>
-              </ul>
+                <h3>Creating Functions</h3>
+                <p>Use the <code>function</code> keyword:</p>
+                <ul>
+                  <li><code>function myFunction() { }</code> - creates a function</li>
+                  <li>Call it with <code>myFunction()</code></li>
+                </ul>
 
-              <div class="info-box">
-                <strong>Why use functions?</strong> To avoid repeating code and to organize your program into logical pieces.
-              </div>
+                <div class="info-box">
+                  <strong>Why use functions?</strong> To avoid repeating code and to organize your program into logical pieces.
+                </div>
 
-              <h3>Parameters</h3>
-              <p>Functions can accept values called parameters:</p>
-              <ul>
-                <li><code>function add(a, b) { return a + b; }</code></li>
-                <li><code>add(2, 3)</code> returns <code>5</code></li>
-              </ul>
-            `,
-            code: `const renderer = new THREE.WebGLRenderer({ antialias: true });
+                <h3>Parameters</h3>
+                <p>Functions can accept values called parameters:</p>
+                <ul>
+                  <li><code>function add(a, b) { return a + b; }</code></li>
+                  <li><code>add(2, 3)</code> returns <code>5</code></li>
+                </ul>
+              `,
+              code: `const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -584,31 +631,31 @@ createCube(0xff6b9d, 0, 0, 0);
 createCube(0x4ecdc4, 2, 0, 0);
 
 renderer.render(scene, camera);`
-          },
-          {
-            id: "1-3",
-            title: "Animation Loop",
-            content: `
-              <h2>What is requestAnimationFrame?</h2>
-              <p>It's the browser's way of saying "I'm about to paint the screen, do you have anything to draw?"</p>
+            },
+            {
+              id: "1-3",
+              title: "Animation Loop",
+              content: `
+                <h2>What is requestAnimationFrame?</h2>
+                <p>It's the browser's way of saying "I'm about to paint the screen, do you have anything to draw?"</p>
 
-              <h3>Creating Animation</h3>
-              <p>To animate, you call <code>requestAnimationFrame(animate)</code> repeatedly:</p>
-              <ul>
-                <li>Browser calls your function before refreshing</li>
-                <li>You update objects</li>
-                <li>You render the scene</li>
-                <li>You call requestAnimationFrame again</li>
-              </ul>
+                <h3>Creating Animation</h3>
+                <p>To animate, you call <code>requestAnimationFrame(animate)</code> repeatedly:</p>
+                <ul>
+                  <li>Browser calls your function before refreshing</li>
+                  <li>You update objects</li>
+                  <li>You render the scene</li>
+                  <li>You call requestAnimationFrame again</li>
+                </ul>
 
-              <div class="info-box">
-                <strong>Remember:</strong> Nothing moves unless you render each frame!
-              </div>
+                <div class="info-box">
+                  <strong>Remember:</strong> Nothing moves unless you render each frame!
+                </div>
 
-              <h3>Delta Time</h3>
-              <p>Use time to make movement consistent across all devices.</p>
-            `,
-            code: `const renderer = new THREE.WebGLRenderer({ antialias: true });
+                <h3>Delta Time</h3>
+                <p>Use time to make movement consistent across all devices.</p>
+              `,
+              code: `const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -649,42 +696,42 @@ function animate() {
 
 // Start the animation
 animate();`
-          }
-        ]
-      },
-      {
-        chapter: 2,
-        title: "Transformations & Hierarchy",
-        lessons: [
-          {
-            id: "2-1",
-            title: "Position, Rotation, Scale",
-            content: `
-              <h2>Moving Objects in 3D Space</h2>
-              <p>Every object in Three.js has three transformation properties:</p>
+            }
+          ]
+        },
+        {
+          chapter: 2,
+          title: "Transformations & Hierarchy",
+          lessons: [
+            {
+              id: "2-1",
+              title: "Position, Rotation, Scale",
+              content: `
+                <h2>Moving Objects in 3D Space</h2>
+                <p>Every object in Three.js has three transformation properties:</p>
 
-              <h3>Position</h3>
-              <p><code>object.position</code> - where the object is in 3D space (x, y, z)</p>
-              <ul>
-                <li><code>cube.position.x = 2</code> - move right</li>
-                <li><code>cube.position.y = 1</code> - move up</li>
-                <li><code>cube.position.z = -3</code> - move forward</li>
-              </ul>
+                <h3>Position</h3>
+                <p><code>object.position</code> - where the object is in 3D space (x, y, z)</p>
+                <ul>
+                  <li><code>cube.position.x = 2</code> - move right</li>
+                  <li><code>cube.position.y = 1</code> - move up</li>
+                  <li><code>cube.position.z = -3</code> - move forward</li>
+                </ul>
 
-              <h3>Rotation</h3>
-              <p><code>object.rotation</code> - how the object is oriented (in radians)</p>
-              <ul>
-                <li><code>cube.rotation.x = Math.PI / 2</code> - rotate around x axis</li>
-                <li>Use <code>Math.PI</code> for circular rotations</li>
-              </ul>
+                <h3>Rotation</h3>
+                <p><code>object.rotation</code> - how the object is oriented (in radians)</p>
+                <ul>
+                  <li><code>cube.rotation.x = Math.PI / 2</code> - rotate around x axis</li>
+                  <li>Use <code>Math.PI</code> for circular rotations</li>
+                </ul>
 
-              <h3>Scale</h3>
-              <p><code>object.scale</code> - how big the object is</p>
-              <ul>
-                <li><code>cube.scale.set(2, 1, 0.5)</code> - stretch different directions</li>
-              </ul>
-            `,
-            code: `const renderer = new THREE.WebGLRenderer({ antialias: true });
+                <h3>Scale</h3>
+                <p><code>object.scale</code> - how big the object is</p>
+                <ul>
+                  <li><code>cube.scale.set(2, 1, 0.5)</code> - stretch different directions</li>
+                </ul>
+              `,
+              code: `const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -734,19 +781,308 @@ function animate() {
 }
 
 animate();`
-          }
-        ]
-      }
-    ];
+            }
+          ]
+        }
+      ],
+      '2d': [
+        {
+          chapter: 1,
+          title: "Canvas 2D Drawing Basics",
+          lessons: [
+            {
+              id: "c1-1",
+              title: "Drawing Shapes",
+              content: `
+                <h2>HTML5 Canvas - Draw on the Web</h2>
+                <p>Canvas is a 2D drawing surface in the browser. You write code to draw shapes, images, and text on it.</p>
+
+                <h3>Getting the Canvas Context</h3>
+                <p>Canvas works like a piece of paper, but you need a pen (context) to draw:</p>
+                <ul>
+                  <li><code>const canvas = document.getElementById('canvas')</code></li>
+                  <li><code>const ctx = canvas.getContext('2d')</code></li>
+                </ul>
+
+                <h3>Drawing Shapes</h3>
+                <ul>
+                  <li><code>ctx.fillRect(x, y, width, height)</code> - filled square</li>
+                  <li><code>ctx.strokeRect(x, y, width, height)</code> - outline square</li>
+                  <li><code>ctx.fillCircle()</code> - use <code>beginPath(), arc(), fill()</code></li>
+                </ul>
+
+                <div class="info-box">
+                  <strong>Remember:</strong> Canvas coordinates start at (0,0) in the top-left corner!
+                </div>
+              `,
+              code: `// Get canvas and context
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Set canvas size
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Set background
+ctx.fillStyle = '#1a1a2e';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+// Draw rectangles
+ctx.fillStyle = '#00ff88';
+ctx.fillRect(50, 50, 150, 100);
+
+ctx.fillStyle = '#ff6b9d';
+ctx.fillRect(250, 50, 150, 100);
+
+// Draw circles using arc
+ctx.fillStyle = '#4ecdc4';
+ctx.beginPath();
+ctx.arc(150, 250, 60, 0, Math.PI * 2);
+ctx.fill();
+
+// Draw outlines
+ctx.strokeStyle = '#60a5fa';
+ctx.lineWidth = 3;
+ctx.strokeRect(400, 50, 150, 150);`
+            },
+            {
+              id: "c1-2",
+              title: "Colors & Styles",
+              content: `
+                <h2>Making Your Canvas Colorful</h2>
+                <p>Control how shapes look with colors, line widths, and other styles.</p>
+
+                <h3>Color Properties</h3>
+                <ul>
+                  <li><code>ctx.fillStyle = '#ff0000'</code> - sets fill color (hex)</li>
+                  <li><code>ctx.strokeStyle = '#00ff00'</code> - sets outline color</li>
+                  <li><code>ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'</code> - with transparency</li>
+                </ul>
+
+                <h3>Line Styles</h3>
+                <ul>
+                  <li><code>ctx.lineWidth = 5</code> - thickness of outlines</li>
+                  <li><code>ctx.lineCap = 'round'</code> - rounded line ends</li>
+                  <li><code>ctx.lineJoin = 'round'</code> - rounded corners</li>
+                </ul>
+
+                <h3>Transparency</h3>
+                <p><code>ctx.globalAlpha = 0.5</code> - make everything 50% transparent</p>
+              `,
+              code: `const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Background
+ctx.fillStyle = '#1a1a2e';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+// Colors with hex codes
+ctx.fillStyle = '#ff0000';
+ctx.fillRect(30, 30, 100, 100);
+
+ctx.fillStyle = '#00ff00';
+ctx.fillRect(150, 30, 100, 100);
+
+ctx.fillStyle = '#0000ff';
+ctx.fillRect(270, 30, 100, 100);
+
+// Semi-transparent colors
+ctx.fillStyle = 'rgba(255, 255, 0, 0.6)';
+ctx.fillRect(30, 150, 100, 100);
+
+// Lines with different widths
+ctx.strokeStyle = '#60a5fa';
+ctx.lineWidth = 2;
+ctx.strokeRect(150, 150, 100, 100);
+
+ctx.lineWidth = 8;
+ctx.strokeRect(270, 150, 100, 100);
+
+// Circles with colors
+ctx.fillStyle = '#ff1493';
+ctx.beginPath();
+ctx.arc(80, 300, 40, 0, Math.PI * 2);
+ctx.fill();
+
+ctx.strokeStyle = '#00ff88';
+ctx.lineWidth = 5;
+ctx.beginPath();
+ctx.arc(200, 300, 40, 0, Math.PI * 2);
+ctx.stroke();`
+            },
+            {
+              id: "c1-3",
+              title: "Animation Loop",
+              content: `
+                <h2>Animating Canvas Drawings</h2>
+                <p>Use <code>requestAnimationFrame</code> to create smooth animations on canvas, just like Three.js!</p>
+
+                <h3>Animation Pattern</h3>
+                <ul>
+                  <li>Clear the canvas every frame</li>
+                  <li>Update object positions/rotations</li>
+                  <li>Draw everything in new positions</li>
+                  <li>Call requestAnimationFrame again</li>
+                </ul>
+
+                <div class="info-box">
+                  <strong>Key Tip:</strong> Always clear canvas with <code>ctx.clearRect()</code> or redraw the background!
+                </div>
+
+                <h3>Tracking Time</h3>
+                <p>Use <code>Date.now()</code> or save time in a variable to make smooth animations.</p>
+              `,
+              code: `const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let startTime = Date.now();
+
+function animate() {
+  // Calculate elapsed time in seconds
+  const elapsed = (Date.now() - startTime) / 1000;
+
+  // Clear canvas
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw rotating squares
+  ctx.save(); // Save current state
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  
+  // Square 1 - rotating
+  ctx.rotate(elapsed);
+  ctx.fillStyle = '#00ff88';
+  ctx.fillRect(-40, -40, 80, 80);
+  
+  ctx.restore(); // Restore state
+
+  // Draw moving circle
+  const x = Math.cos(elapsed) * 100 + canvas.width / 2;
+  const y = Math.sin(elapsed) * 100 + canvas.height / 2;
+  
+  ctx.fillStyle = '#ff6b9d';
+  ctx.beginPath();
+  ctx.arc(x, y, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  requestAnimationFrame(animate);
+}
+
+animate();`
+            }
+          ]
+        },
+        {
+          chapter: 2,
+          title: "Canvas Interactions",
+          lessons: [
+            {
+              id: "c2-1",
+              title: "Drawing with Mouse",
+              content: `
+                <h2>Interactive Canvas Drawing</h2>
+                <p>Respond to mouse movements and clicks to make interactive canvas applications.</p>
+
+                <h3>Mouse Events</h3>
+                <ul>
+                  <li><code>mousemove</code> - when mouse moves</li>
+                  <li><code>mousedown</code> - when mouse button pressed</li>
+                  <li><code>mouseup</code> - when mouse button released</li>
+                  <li><code>click</code> - quick click</li>
+                </ul>
+
+                <h3>Getting Mouse Position</h3>
+                <p><code>event.clientX</code> and <code>event.clientY</code> give you the mouse coordinates on screen.</p>
+
+                <div class="info-box">
+                  <strong>Try this:</strong> Move your mouse on the canvas and watch it draw!
+                </div>
+              `,
+              code: `const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Background
+ctx.fillStyle = '#1a1a2e';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+
+canvas.addEventListener('mousedown', (e) => {
+  isDrawing = true;
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!isDrawing) return;
+
+  // Draw line from last point to current point
+  ctx.strokeStyle = '#00ff88';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(e.clientX, e.clientY);
+  ctx.stroke();
+
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+
+canvas.addEventListener('mouseup', () => {
+  isDrawing = false;
+});
+
+canvas.addEventListener('click', (e) => {
+  // Draw circle at click position
+  ctx.fillStyle = '#ff6b9d';
+  ctx.beginPath();
+  ctx.arc(e.clientX, e.clientY, 20, 0, Math.PI * 2);
+  ctx.fill();
+});`
+            }
+          ]
+        }
+      ]
+    };
 
     let currentChapter = 1;
     let currentLesson = 0;
     let originalCode = '';
     let generatedHTML = '';
 
+    function setMode(mode) {
+      currentMode = mode;
+      currentChapter = 1;
+      currentLesson = 0;
+      
+      // Update buttons
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      renderChapterSelector();
+      renderLessons();
+    }
+
     function renderChapterSelector() {
       const selector = document.getElementById('chapterSelector');
-      const uniqueChapters = [...new Set(lessons.map(l => l.chapter))];
+      selector.innerHTML = '';
+      
+      const lessonSet = lessons[currentMode];
+      const uniqueChapters = [...new Set(lessonSet.map(l => l.chapter))];
 
       uniqueChapters.forEach(ch => {
         const btn = document.createElement('button');
@@ -773,7 +1109,8 @@ animate();`
     }
 
     function renderLessons() {
-      const chapter = lessons.find(l => l.chapter === currentChapter);
+      const lessonSet = lessons[currentMode];
+      const chapter = lessonSet.find(l => l.chapter === currentChapter);
       const container = document.getElementById('lessonsContainer');
       container.innerHTML = '';
 
@@ -810,7 +1147,8 @@ animate();`
     }
 
     function navigateLessonLesson(direction) {
-      const chapter = lessons.find(l => l.chapter === currentChapter);
+      const lessonSet = lessons[currentMode];
+      const chapter = lessonSet.find(l => l.chapter === currentChapter);
       const newIndex = currentLesson + direction;
 
       if (newIndex >= 0 && newIndex < chapter.lessons.length) {
@@ -837,30 +1175,67 @@ animate();`
         status.textContent = 'Running...';
         status.style.color = '#fbbf24';
 
-        const htmlContent = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <style>
-              body { margin: 0; overflow: hidden; background: #111827; }
-              canvas { display: block; }
-            </style>
-          </head>
-          <body>
-            <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"><\/script>
-            <script type="module">
-              import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
-              ${code}
-            <\/script>
-          </body>
-          </html>
-        `;
+        if (currentMode === '2d') {
+          // For 2D, run directly in canvas
+          document.getElementById('preview').style.display = 'none';
+          document.getElementById('canvas2d').style.display = 'block';
+          
+          const canvas = document.getElementById('canvas2d');
+          canvas.width = canvas.offsetWidth;
+          canvas.height = canvas.offsetHeight;
+          
+          // Execute code with canvas available
+          const func = new Function('canvas', code);
+          func(canvas);
+          
+          generatedHTML = `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; background: #1a1a2e; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    ${code}
+  </script>
+</body>
+</html>`;
+        } else {
+          // For 3D, use iframe
+          document.getElementById('preview').style.display = 'block';
+          document.getElementById('canvas2d').style.display = 'none';
+          
+          const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                body { margin: 0; overflow: hidden; background: #111827; }
+                canvas { display: block; }
+              </style>
+            </head>
+            <body>
+              <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"><\/script>
+              <script type="module">
+                import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+                ${code}
+              <\/script>
+            </body>
+            </html>
+          `;
 
-        generatedHTML = htmlContent;
+          generatedHTML = htmlContent;
 
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        document.getElementById('preview').src = url;
+          const blob = new Blob([htmlContent], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          document.getElementById('preview').src = url;
+        }
 
         status.textContent = 'Ready';
         status.style.color = '#10b981';

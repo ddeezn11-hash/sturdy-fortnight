@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Three.js Course - Interactive Lessons</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      overflow: hidden;
+    }
+
+    .lesson-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .left-panel {
+      flex: 1;
+      overflow-y: auto;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 40px;
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0f172a;
+    }
+
+    .preview-section {
+      flex: 1;
+      background: #111827;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #preview {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .code-section {
+      flex: 1;
+      background: #0f172a;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .code-header {
+      background: rgba(30, 41, 59, 0.8);
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-header h4 {
+      color: #60a5fa;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .code-editor {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+    }
+
+    #codeInput {
+      flex: 1;
+      background: #1e293b;
+      color: #e2e8f0;
+      border: none;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      padding: 0 20px 15px 20px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .btn-run {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      color: white;
+    }
+
+    .btn-run:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-reset {
+      background: rgba(148, 163, 184, 0.1);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .btn-reset:hover {
+      background: rgba(148, 163, 184, 0.2);
+    }
+
+    .left-panel h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
+
+    .chapter-meta {
+      color: #94a3b8;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      font-size: 0.9rem;
+    }
+
+    .left-panel h2 {
+      font-size: 1.5rem;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: #60a5fa;
+    }
+
+    .left-panel h3 {
+      font-size: 1.2rem;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #a78bfa;
+    }
+
+    .left-panel p {
+      margin-bottom: 15px;
+      line-height: 1.8;
+      color: #cbd5e1;
+    }
+
+    .left-panel code {
+      background: rgba(15, 23, 42, 0.8);
+      color: #fbbf24;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+
+    .left-panel pre {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      padding: 15px;
+      overflow-x: auto;
+      margin: 15px 0;
+    }
+
+    .left-panel pre code {
+      background: none;
+      color: #e2e8f0;
+      padding: 0;
+    }
+
+    .left-panel ul,
+    .left-panel ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    .left-panel li {
+      margin-bottom: 8px;
+    }
+
+    .left-panel strong {
+      color: #60a5fa;
+    }
+
+    .left-panel a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    .left-panel a:hover {
+      text-decoration: underline;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .nav-btn {
+      flex: 1;
+      padding: 10px 15px;
+      background: rgba(96, 165, 250, 0.1);
+      color: #60a5fa;
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: rgba(96, 165, 250, 0.2);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .sidebar-nav {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 50px;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.95);
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      z-index: 100;
+    }
+
+    .sidebar-nav a {
+      width: 35px;
+      height: 35px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      margin: 5px 0;
+      font-size: 0.8rem;
+    }
+
+    .sidebar-nav a:hover {
+      background: rgba(96, 165, 250, 0.1);
+      color: #60a5fa;
+    }
+
+    .lesson-container {
+      margin-left: 50px;
+    }
+
+    @media (max-width: 1024px) {
+      .lesson-container {
+        flex-direction: column;
+      }
+
+      .left-panel {
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        max-height: 50vh;
+      }
+
+      .right-panel {
+        flex: 1;
+      }
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar-nav" id="sidebarNav"></div>
+
+  <div class="lesson-container">
+    <div class="left-panel" id="leftPanel">
+      <div class="loading">Loading lesson...</div>
+    </div>
+
+    <div class="right-panel">
+      <div class="preview-section">
+        <iframe id="preview"></iframe>
+      </div>
+      <div class="code-section">
+        <div class="code-header">
+          <h4>Interactive Code</h4>
+        </div>
+        <textarea id="codeInput" placeholder="Edit code here..."></textarea>
+        <div class="button-group">
+          <button class="btn btn-run" onclick="runCode()">▶ Run Code</button>
+          <button class="btn btn-reset" onclick="resetCode()">↻ Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script>
+    const chapters = [
+      { file: 'chapter-01.md', title: 'Your First Scene' },
+      { file: 'chapter-02.md', title: 'Transformations' },
+      { file: 'chapter-03.md', title: 'Cameras' },
+      { file: 'chapter-04.md', title: 'Geometry & Materials' },
+      { file: 'chapter-05.md', title: 'Lights & Shadows' },
+      { file: 'chapter-06.md', title: 'Animation & Input' },
+      { file: 'chapter-07.md', title: 'Raycasting' },
+      { file: 'chapter-08.md', title: 'Textures' },
+      { file: 'chapter-09.md', title: 'Skyboxes & Fog' },
+      { file: 'chapter-10.md', title: 'Model Loading' },
+      { file: 'chapter-11.md', title: 'Post-Processing' },
+      { file: 'chapter-12.md', title: 'Performance' }
+    ];
+
+    let currentChapterIndex = 0;
+    let originalCode = '';
+
+    function renderSidebar() {
+      const sidebar = document.getElementById('sidebarNav');
+      chapters.forEach((chapter, index) => {
+        const link = document.createElement('a');
+        link.href = `#${index}`;
+        link.textContent = index + 1;
+        link.title = chapter.title;
+        link.onclick = (e) => {
+          e.preventDefault();
+          loadChapter(index);
+        };
+        if (index === currentChapterIndex) link.style.background = 'rgba(96, 165, 250, 0.2)';
+        sidebar.appendChild(link);
+      });
+    }
+
+    function parseMarkdown(text) {
+      let html = text;
+      html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      html = html.replace(/```(.*?)\n([\s\S]*?)```/g, (match, lang, code) => {
+        return `<pre><code class="language-javascript">${code.trim()}</code></pre>`;
+      });
+      html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
+      html = html.replace(/^\- (.*?)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*?<\/li>)/s, (match) => `<ul>${match}</ul>`);
+      html = html.replace(/\n\n/g, '</p><p>');
+      html = `<p>${html}</p>`;
+      html = html.replace(/<p><\/p>/g, '');
+      return html;
+    }
+
+    async function loadChapter(index) {
+      currentChapterIndex = index;
+      const chapter = chapters[index];
+      const leftPanel = document.getElementById('leftPanel');
+      const codeInput = document.getElementById('codeInput');
+
+      leftPanel.innerHTML = '<div class="loading">Loading...</div>';
+
+      try {
+        const response = await fetch(`https://raw.githubusercontent.com/ddeezn11-hash/sturdy-fortnight/main/course/${chapter.file}`);
+        const text = await response.text();
+
+        const lines = text.split('\n');
+        let contentLines = [];
+        let codeLines = [];
+        let inCode = false;
+
+        for (const line of lines) {
+          if (line.startsWith('```')) {
+            inCode = !inCode;
+            if (!inCode && codeLines.length > 0) {
+              originalCode = codeLines.join('\n');
+            }
+          } else if (inCode && codeLines.length === 0) {
+            codeLines.push(line);
+          } else {
+            contentLines.push(line);
+          }
+        }
+
+        const html = parseMarkdown(contentLines.join('\n'));
+        const title = chapter.title;
+
+        leftPanel.innerHTML = `
+          <h1>${title}</h1>
+          <div class="chapter-meta">Chapter ${index + 1} of ${chapters.length}</div>
+          <div>${html}</div>
+          <div class="nav-buttons">
+            <button class="nav-btn" ${index === 0 ? 'disabled' : ''} onclick="loadChapter(${index - 1})">← Previous</button>
+            <button class="nav-btn" ${index === chapters.length - 1 ? 'disabled' : ''} onclick="loadChapter(${index + 1})">Next →</button>
+          </div>
+        `;
+
+        hljs.highlightAll();
+
+        if (originalCode) {
+          codeInput.value = originalCode;
+        }
+
+        updateSidebar();
+        loadPreview();
+      } catch (error) {
+        leftPanel.innerHTML = `<div class="error-message">Error loading chapter: ${error.message}</div>`;
+      }
+    }
+
+    function updateSidebar() {
+      document.querySelectorAll('.sidebar-nav a').forEach((link, index) => {
+        link.style.background = index === currentChapterIndex ? 'rgba(96, 165, 250, 0.2)' : 'transparent';
+        link.style.color = index === currentChapterIndex ? '#60a5fa' : '#94a3b8';
+      });
+    }
+
+    function loadPreview() {
+      const preview = document.getElementById('preview');
+      const code = document.getElementById('codeInput').value || originalCode;
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { margin: 0; overflow: hidden; background: #111827; }
+            canvas { display: block; }
+          </style>
+        </head>
+        <body>
+          <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"><\/script>
+          <script type="module">
+            import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+            ${code}
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      preview.src = url;
+    }
+
+    function runCode() {
+      loadPreview();
+    }
+
+    function resetCode() {
+      document.getElementById('codeInput').value = originalCode;
+      loadPreview();
+    }
+
+    renderSidebar();
+    loadChapter(0);
+  </script>
+</body>
+</html>

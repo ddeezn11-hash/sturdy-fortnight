@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Three.js Course - Chapter Reader</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #e2e8f0;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .reader-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: rgba(15, 23, 42, 0.95);
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 20px;
+      overflow-y: auto;
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      backdrop-filter: blur(10px);
+    }
+
+    .sidebar h3 {
+      color: #60a5fa;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .chapters-list {
+      list-style: none;
+    }
+
+    .chapters-list li {
+      margin-bottom: 8px;
+    }
+
+    .chapters-list a {
+      display: block;
+      padding: 8px 12px;
+      color: #cbd5e1;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .chapters-list a:hover {
+      background: rgba(96, 165, 250, 0.1);
+      color: #60a5fa;
+      padding-left: 16px;
+    }
+
+    .chapters-list a.active {
+      background: rgba(96, 165, 250, 0.2);
+      color: #60a5fa;
+      font-weight: 600;
+      border-left: 2px solid #60a5fa;
+    }
+
+    .home-link {
+      display: block;
+      padding: 8px 12px;
+      color: #94a3b8;
+      text-decoration: none;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      padding-bottom: 15px;
+    }
+
+    .home-link:hover {
+      color: #60a5fa;
+    }
+
+    .content {
+      margin-left: 250px;
+      flex: 1;
+      padding: 40px 60px;
+      max-width: 900px;
+    }
+
+    .content h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
+
+    .chapter-meta {
+      color: #94a3b8;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .content h2 {
+      font-size: 1.8rem;
+      margin-top: 40px;
+      margin-bottom: 15px;
+      color: #60a5fa;
+    }
+
+    .content h3 {
+      font-size: 1.3rem;
+      margin-top: 30px;
+      margin-bottom: 12px;
+      color: #a78bfa;
+    }
+
+    .content h4 {
+      font-size: 1.1rem;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #e0e7ff;
+    }
+
+    .content p {
+      margin-bottom: 15px;
+      line-height: 1.8;
+      color: #cbd5e1;
+    }
+
+    .content ul,
+    .content ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    .content li {
+      margin-bottom: 8px;
+      color: #cbd5e1;
+    }
+
+    .content code {
+      background: rgba(15, 23, 42, 0.8);
+      color: #fbbf24;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    .content pre {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+      color: #e2e8f0;
+    }
+
+    .content pre code {
+      background: none;
+      color: #e2e8f0;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .content blockquote {
+      border-left: 3px solid #60a5fa;
+      padding-left: 20px;
+      margin: 20px 0;
+      color: #a1aac4;
+      font-style: italic;
+    }
+
+    .content strong {
+      color: #60a5fa;
+      font-weight: 600;
+    }
+
+    .content em {
+      color: #cbd5e1;
+    }
+
+    .math-block {
+      background: rgba(96, 165, 250, 0.1);
+      border-left: 3px solid #60a5fa;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      overflow-x: auto;
+    }
+
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .nav-button {
+      padding: 10px 20px;
+      background: rgba(96, 165, 250, 0.1);
+      color: #60a5fa;
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .nav-button:hover {
+      background: rgba(96, 165, 250, 0.2);
+    }
+
+    .nav-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .loading {
+      text-align: center;
+      color: #94a3b8;
+      padding: 40px;
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+        padding: 15px;
+      }
+
+      .content {
+        margin-left: 200px;
+        padding: 30px 20px;
+      }
+
+      .content h1 {
+        font-size: 1.8rem;
+      }
+
+      .content h2 {
+        font-size: 1.4rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .sidebar {
+        transform: translateX(-100%);
+        z-index: 10;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: #60a5fa;
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="reader-container">
+    <div class="sidebar" id="sidebar">
+      <a href="index.html" class="home-link">← Back to Home</a>
+      <h3>Chapters</h3>
+      <ul class="chapters-list" id="chaptersList"></ul>
+    </div>
+
+    <div class="content" id="content">
+      <div class="loading">Loading chapter...</div>
+    </div>
+  </div>
+
+  <script>
+    const chapters = [
+      { file: 'chapter-01.md', title: 'Your First Three.js Scene' },
+      { file: 'chapter-02.md', title: 'Transformations & Hierarchy' },
+      { file: 'chapter-03.md', title: 'Cameras & Camera Control' },
+      { file: 'chapter-04.md', title: 'Geometry, Meshes & Materials' },
+      { file: 'chapter-05.md', title: 'Lights, Shadows & Realism' },
+      { file: 'chapter-06.md', title: 'Animation, Timing & Input' },
+      { file: 'chapter-07.md', title: 'Raycasting & Object Interaction' },
+      { file: 'chapter-08.md', title: 'Textures & Advanced Materials' },
+      { file: 'chapter-09.md', title: 'Skyboxes, Fog & Particles' },
+      { file: 'chapter-10.md', title: 'Loading Models & Animation' },
+      { file: 'chapter-11.md', title: 'Post-Processing & Custom Shaders' },
+      { file: 'chapter-12.md', title: 'Performance & Advanced Topics' }
+    ];
+
+    function renderChaptersList() {
+      const list = document.getElementById('chaptersList');
+      const currentChapter = new URLSearchParams(window.location.search).get('chapter');
+
+      chapters.forEach((chapter, index) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `reader.html?chapter=${chapter.file}`;
+        a.textContent = `${index + 1}. ${chapter.title}`;
+
+        if (chapter.file === currentChapter) {
+          a.classList.add('active');
+        }
+
+        li.appendChild(a);
+        list.appendChild(li);
+      });
+    }
+
+    function parseMarkdown(text) {
+      let html = text;
+
+      // Escape HTML
+      html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      // Code blocks (preserve content)
+      html = html.replace(/```(.*?)\n([\s\S]*?)```/g, (match, lang, code) => {
+        return `<pre><code>${code.trim()}</code></pre>`;
+      });
+
+      // Math formulas
+      html = html.replace(/\$\$([\s\S]*?)\$\$/g, '<div class="math-block">$1</div>');
+      html = html.replace(/\$(.*?)\$/g, '<code class="math">$1</code>');
+
+      // Headers
+      html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+      html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+
+      // Bold and italic
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+      // Links
+      html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
+
+      // Lists
+      html = html.replace(/^\- (.*?)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*?<\/li>)/s, (match) => `<ul>${match}</ul>`);
+
+      html = html.replace(/^\d+\. (.*?)$/gm, '<li>$1</li>');
+
+      // Paragraphs
+      html = html.replace(/\n\n/g, '</p><p>');
+      html = `<p>${html}</p>`;
+
+      // Clean up
+      html = html.replace(/<p><\/p>/g, '');
+      html = html.replace(/<p>(<h[1-6]|<ul|<pre)/g, '$1');
+      html = html.replace(/(<\/h[1-6]|<\/ul|<\/pre)><\/p>/g, '$1');
+
+      return html;
+    }
+
+    async function loadChapter() {
+      const params = new URLSearchParams(window.location.search);
+      const chapter = params.get('chapter') || 'chapter-01.md';
+      const contentDiv = document.getElementById('content');
+
+      try {
+        const response = await fetch(chapter);
+        if (!response.ok) throw new Error('Chapter not found');
+
+        const text = await response.text();
+        const html = parseMarkdown(text);
+        contentDiv.innerHTML = html;
+
+        // Add navigation
+        const currentIndex = chapters.findIndex(c => c.file === chapter);
+        const navDiv = document.createElement('div');
+        navDiv.className = 'navigation';
+
+        const prevBtn = document.createElement('a');
+        prevBtn.className = 'nav-button';
+        if (currentIndex > 0) {
+          prevBtn.href = `reader.html?chapter=${chapters[currentIndex - 1].file}`;
+          prevBtn.textContent = '← Previous Chapter';
+        } else {
+          prevBtn.textContent = '← Previous Chapter';
+          prevBtn.style.opacity = '0.5';
+          prevBtn.style.cursor = 'not-allowed';
+        }
+
+        const nextBtn = document.createElement('a');
+        nextBtn.className = 'nav-button';
+        if (currentIndex < chapters.length - 1) {
+          nextBtn.href = `reader.html?chapter=${chapters[currentIndex + 1].file}`;
+          nextBtn.textContent = 'Next Chapter →';
+        } else {
+          nextBtn.textContent = 'Next Chapter →';
+          nextBtn.style.opacity = '0.5';
+          nextBtn.style.cursor = 'not-allowed';
+        }
+
+        contentDiv.appendChild(navDiv);
+        navDiv.appendChild(prevBtn);
+        navDiv.appendChild(nextBtn);
+      } catch (error) {
+        contentDiv.innerHTML = `<div class="error">Error loading chapter: ${error.message}</div>`;
+      }
+    }
+
+    renderChaptersList();
+    loadChapter();
+  </script>
+</body>
+</html>

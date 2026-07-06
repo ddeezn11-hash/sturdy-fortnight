@@ -409,7 +409,16 @@
       const contentDiv = document.getElementById('content');
 
       try {
-        const response = await fetch(chapter);
+        // Try GitHub raw content URL first (works online)
+        let url = `https://raw.githubusercontent.com/ddeezn11-hash/sturdy-fortnight/main/course/${chapter}`;
+        
+        let response = await fetch(url);
+        
+        // If that fails, try local fetch
+        if (!response.ok) {
+          response = await fetch(chapter);
+        }
+        
         if (!response.ok) throw new Error('Chapter not found');
 
         const text = await response.text();

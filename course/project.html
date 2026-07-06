@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Three.js Beginner Project - Chapter 1</title>
+  <style>
+    /* Make the page use the full browser window and hide any default body margin. */
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #111827;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Ensure the canvas fills the entire viewport and is not surrounded by extra spacing. */
+    canvas {
+      display: block;
+    }
+
+    /* Position a small informational overlay at the top-left corner of the page. */
+    #info {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      color: white;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 10px 14px;
+      border-radius: 8px;
+      z-index: 10;
+      pointer-events: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">Chapter 1: First Three.js scene</div>
+
+  <!-- Define an import map so we can write import "three" instead of a long URL. -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <!-- Load our JavaScript as an ES module so we can use import syntax. -->
+  <script type="module">
+    // Import the entire Three.js library under the name THREE.
+    import * as THREE from 'three';
+
+    // Create a WebGL renderer. This object is responsible for drawing the scene into a canvas.
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+    // Tell the renderer how large the drawing area should be.
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Limit the pixel ratio so the app does not become too expensive on high-DPI screens.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Add the renderer's canvas element to the page so the user can see the 3D output.
+    document.body.appendChild(renderer.domElement);
+
+    // Create a scene. This is the container that holds all objects to be rendered.
+    const scene = new THREE.Scene();
+
+    // Set the scene background color to a dark blue-gray.
+    scene.background = new THREE.Color(0x111827);
+
+    // Create a perspective camera. This camera mimics human vision and is the most common choice.
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+
+    // Place the camera slightly away from the origin so the cube is visible.
+    camera.position.set(0, 0, 5);
+
+    // Create a box geometry. Geometry describes the shape of the object.
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+
+    // Create a basic material. Materials describe the visible surface appearance.
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
+
+    // Combine the geometry and material into a mesh, which is the actual drawable object.
+    const cube = new THREE.Mesh(geometry, material);
+
+    // Add the cube to the scene so it will be rendered.
+    scene.add(cube);
+
+    // Create an animation loop using requestAnimationFrame.
+    function animate() {
+      // Ask the browser to call this function again on the next repaint.
+      requestAnimationFrame(animate);
+
+      // Rotate the cube a little on each frame to make it visible as an animation.
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+
+      // Render the current scene from the current camera viewpoint.
+      renderer.render(scene, camera);
+    }
+
+    // Start the animation loop.
+    animate();
+
+    // When the window is resized, update the renderer and camera to match the new size.
+    window.addEventListener('resize', () => {
+      // Keep the camera projection correct after a resize.
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+
+      // Resize the drawing surface for the new viewport.
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // Keep the GPU workload reasonable on very high-DPI displays.
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    });
+  </script>
+</body>
+</html>
